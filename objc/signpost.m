@@ -5,61 +5,58 @@
 @interface _Signpost : NSObject
 
 - (void)begin;
-- (void)emit:(NSString *)message;
+- (void)emit:(const char *)message;
 - (void)end;
 
 @end
 
 @implementation _Signpost {
-  os_log_t _logHandle;
-  os_signpost_id_t _signpostID;
+    os_log_t _logHandle;
+    os_signpost_id_t _signpostID;
+    char _identifier[128];
 }
 
-+ (instancetype)signpostWithSubsystem:(const char *)subsystem
-                             category:(const char *)category {
-  return [[_Signpost alloc] initWithSubsystem:subsystem category:category];
++ (instancetype)signpostWithSubsystem:(const char *)subsystem category:(const char *)category {
+    return [[_Signpost alloc] initWithSubsystem:subsystem category:category];
 }
 
-- (instancetype)initWithSubsystem:(const char *)subsystem
-                         category:(const char *)category {
-  self = [super init];
-  if (!self) {
-    return nil;
-  }
+- (instancetype)initWithSubsystem:(const char *)subsystem category:(const char *)category {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
 
-  _logHandle = os_log_create(subsystem, category);
-  _signpostID = os_signpost_id_generate(_logHandle);
+    _logHandle = os_log_create(subsystem, category);
+    _signpostID = os_signpost_id_generate(_logHandle);
 
-  return self;
+    return self;
 }
 
 - (void)begin {
-  os_signpost_interval_begin(_logHandle, _signpostID, "_identifier", "Start");
+    os_signpost_interval_begin(_logHandle, _signpostID, "interval", "start");
 }
 
-- (void)emit:(NSString *)message {
-  os_signpost_event_emit(_logHandle, _signpostID, "%@", "%{pubic}@", message);
+- (void)emit:(const char *)message {
+    os_signpost_event_emit(_logHandle, _signpostID, "event", "%{public}s", message);
 }
 
 - (void)end {
-  os_signpost_interval_end(_logHandle, _signpostID, "_identifier", "End");
+    os_signpost_interval_end(_logHandle, _signpostID, "interval", "end");
 }
 
 @end
 
 int main(int argc, char *argv[]) {
-  __block BOOL done = NO;
-  @autoreleasepool {
-    NSRunLoop *runloop = [NSRunLoop currentRunLoop];
+    __block BOOL done = NO;
+    @autoreleasepool {
+        NSRunLoop *runloop = [NSRunLoop currentRunLoop];
 
-    _Signpost *signpost = [_Signpost signpostWithSubsystem:"com.apple.demo"
-                                                  category:"foo"];
-    [signpost begin];
-    [signpost emit:@"OK"];
-    [signpost end];
+        _Signpost *signpost = [_Signpost signpostWithSubsystem:"com.apple.demo" category:"foo"];
+        [signpost begin];
+        [signpost emit:@"OK"];
+        [signpost end];
 
-    while (!done && [runloop runMode:NSDefaultRunLoopMode
-                          beforeDate:[NSDate distantFuture]]) {
+        while (!done && [runloop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
+        }
     }
-  }
 }

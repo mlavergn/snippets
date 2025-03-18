@@ -19,7 +19,7 @@ log:
 	open -a CodeRunner.app objc/log.m
 
 oformat:
-	xcrun clang-format -i objc/*.[hm] || true
+	xcrun clang-format --style=file:clang-format.cfg -i objc/*.[hm] || true
 
 sformat:
 	swiftformat -config swiftformat.cfg **/*.swift
