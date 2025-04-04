@@ -13,7 +13,6 @@
 @implementation _Signpost {
     os_log_t _logHandle;
     os_signpost_id_t _signpostID;
-    char _identifier[128];
 }
 
 + (instancetype)signpostWithSubsystem:(const char *)subsystem category:(const char *)category {
